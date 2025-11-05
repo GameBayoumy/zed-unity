@@ -1,0 +1,7 @@
+id = "zed-unity"
+name = "Zed Unity Editor Extension"
+version = "0.0.1"
+schema_version = 1
+authors = ["Sharif Bayoumy <contact@sharifbayoumy.com>"]
+description = "Zed Unity Editor Extension"
+repository = "https://github.com/gamebayoumy/zed-unity"
