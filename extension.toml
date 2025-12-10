@@ -1,7 +1,27 @@
 id = "zed-unity"
-name = "Zed Unity Editor Extension"
-version = "0.0.1"
+name = "Unity Editor Extension"
+version = "0.1.0"
 schema_version = 1
 authors = ["Sharif Bayoumy <contact@sharifbayoumy.com>"]
-description = "Zed Unity Editor Extension"
+description = "Comprehensive Unity development support for Zed: Roslyn C# LSP, USS language server, ShaderLab/HLSL, and Unity debugging"
 repository = "https://github.com/gamebayoumy/zed-unity"
+
+# Tree-sitter grammars
+[grammars.c_sharp]
+repository = "https://github.com/tree-sitter/tree-sitter-c-sharp"
+rev = "dd5e59721a5f8dae34604060833902b882023aaf"
+
+# CSS grammar for USS (Unity Style Sheets are CSS-based)
+[grammars.css]
+repository = "https://github.com/tree-sitter/tree-sitter-css"
+rev = "98c7b3dceb24f1ee17f1322f3947e55638251c37"
+
+# Roslyn-based C# Language Server (csharp-language-server)
+[language_servers.csharp-language-server]
+name = "csharp-language-server"
+languages = ["CSharp"]
+
+# USS Language Server (custom Unity Style Sheet support)
+[language_servers.uss-language-server]
+name = "uss-language-server"
+languages = ["USS"]

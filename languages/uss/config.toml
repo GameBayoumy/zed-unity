@@ -1,0 +1,27 @@
+# USS (Unity Style Sheet) language configuration for Unity UI Toolkit
+# Associates .uss files exclusively with this language
+# Uses CSS tree-sitter grammar since USS is CSS-based
+
+name = "USS"
+grammar = "css"
+path_suffixes = ["uss", "tss"]
+block_comment = ["/*", "*/"]
+
+# USS indentation (similar to CSS)
+tab_size = 2
+
+# Auto-closing brackets (CSS-like)
+brackets = [
+  { start = "{", end = "}", close = true, newline = true },
+  { start = "[", end = "]", close = true, newline = false },
+  { start = "(", end = ")", close = true, newline = false },
+  { start = "\"", end = "\"", close = true, newline = false, not_in = ["string", "comment"] },
+  { start = "'", end = "'", close = true, newline = false, not_in = ["string", "comment"] },
+]
+
+# Word characters for selection
+word_characters = ["_", "-"]
+
+# USS indentation patterns
+increase_indent_pattern = "\\{\\s*$"
+decrease_indent_pattern = "^\\s*\\}"

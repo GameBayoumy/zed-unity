@@ -1,0 +1,36 @@
+# C# language configuration for Unity projects
+# Associates .cs files, detects Unity project roots, and maps to the Roslyn-based LSP.
+
+name = "CSharp"
+grammar = "c_sharp"
+
+# Unity C# file type
+path_suffixes = ["cs"]
+
+# Unity project roots (helps the editor determine the workspace root correctly)
+first_line_pattern = "^\\s*using\\s+UnityEngine"
+
+# C# line comment token
+line_comments = ["//"]
+block_comment = ["/*", "*/"]
+
+# Standard C# indentation
+tab_size = 4
+
+# Auto-closing brackets
+brackets = [
+  { start = "{", end = "}", close = true, newline = true },
+  { start = "[", end = "]", close = true, newline = false },
+  { start = "(", end = ")", close = true, newline = false },
+  { start = "<", end = ">", close = false, newline = false },
+  { start = "\"", end = "\"", close = true, newline = false, not_in = ["string", "comment"] },
+  { start = "'", end = "'", close = true, newline = false, not_in = ["string", "comment"] },
+]
+
+# Word characters for selection
+word_characters = ["_"]
+
+# Increase parse timeout for large Unity scripts
+increase_indent_pattern = "\\{\\s*$"
+decrease_indent_pattern = "^\\s*\\}"
+
