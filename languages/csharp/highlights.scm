@@ -6,9 +6,6 @@
 ; ============================================================================
 (comment) @comment
 
-; XML documentation comments
-(xml_comment) @comment.doc
-
 ; ============================================================================
 ; Literals
 ; ============================================================================
@@ -20,8 +17,7 @@
 (raw_string_literal) @string
 (interpolated_string_expression) @string
 (interpolation
-  "{" @punctuation.special
-  "}" @punctuation.special)
+  (interpolation_brace) @punctuation.special)
 (boolean_literal) @constant.builtin
 (null_literal) @constant.builtin
 
@@ -149,12 +145,12 @@
   name: (identifier) @variable.parameter)
 
 (variable_declarator
-  (identifier) @variable)
+  name: (identifier) @variable)
 
 (catch_declaration
   name: (identifier) @variable)
 
-(for_each_statement
+(foreach_statement
   left: (identifier) @variable)
 
 ; ============================================================================
@@ -200,9 +196,9 @@
 (anonymous_method_expression) @function
 
 ; typeof, nameof, sizeof
-(type_of_expression
+(typeof_expression
   "typeof" @keyword.operator)
-(size_of_expression
+(sizeof_expression
   "sizeof" @keyword.operator)
 
 ; Cast expressions
@@ -214,10 +210,9 @@
 ; Pattern matching
 (declaration_pattern
   type: (identifier) @type
-  (identifier) @variable)
+  name: (identifier) @variable)
 (recursive_pattern) @type
-(var_pattern
-  "var" @type.builtin)
+(var_pattern) @type.builtin
 
 ; ============================================================================
 ; Operators
@@ -363,7 +358,6 @@
   "init"
   "add"
   "remove"
-  "value"
   "await"
   "lock"
   "fixed"
@@ -489,4 +483,3 @@
 ; Error handling
 ; ============================================================================
 (ERROR) @error
-

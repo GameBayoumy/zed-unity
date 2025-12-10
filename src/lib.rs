@@ -1,7 +1,7 @@
 use std::fs;
 use zed_extension_api::{
-    self as zed, settings::LspSettings, Command, DownloadedFileType, LanguageServerId,
-    Os, Result, Worktree,
+    self as zed, Command, DownloadedFileType, LanguageServerId, Os, Result, Worktree,
+    settings::LspSettings,
 };
 
 /// Zed Unity Extension
@@ -51,26 +51,25 @@ impl UnityExtension {
     fn get_csharp_server_asset_name(&self) -> Result<String, String> {
         let (os, arch) = zed::current_platform();
 
-        let platform = match os {
+        // Asset names use Rust target triple format
+        let (platform, ext) = match os {
             Os::Linux => match arch {
-                zed::Architecture::Aarch64 => "linux-arm64",
-                zed::Architecture::X8664 => "linux-x64",
+                zed::Architecture::X8664 => ("x86_64-unknown-linux-gnu", "tar.gz"),
                 _ => return Err(format!("Unsupported Linux architecture: {:?}", arch)),
             },
             Os::Mac => match arch {
-                zed::Architecture::Aarch64 => "osx-arm64",
-                zed::Architecture::X8664 => "osx-x64",
+                zed::Architecture::Aarch64 => ("aarch64-apple-darwin", "tar.gz"),
+                zed::Architecture::X8664 => ("x86_64-apple-darwin", "tar.gz"),
                 _ => return Err(format!("Unsupported macOS architecture: {:?}", arch)),
             },
             Os::Windows => match arch {
-                zed::Architecture::Aarch64 => "win-arm64",
-                zed::Architecture::X8664 => "win-x64",
+                zed::Architecture::X8664 => ("x86_64-pc-windows-msvc", "zip"),
                 _ => return Err(format!("Unsupported Windows architecture: {:?}", arch)),
             },
             _ => return Err(format!("Unsupported operating system: {:?}", os)),
         };
 
-        Ok(format!("csharp-language-server-{}.tar.gz", platform))
+        Ok(format!("csharp-language-server-{}.{}", platform, ext))
     }
 
     /// Get the appropriate netcoredbg release asset name for the current platform
@@ -117,8 +116,13 @@ impl UnityExtension {
             .find(|a| a.name == asset_name)
             .ok_or_else(|| format!("No asset found for platform: {}", asset_name))?;
 
+        let (os, _) = zed::current_platform();
         let version_dir = format!("csharp-language-server-{}", release.version);
-        let binary_path = format!("{}/csharp-language-server", version_dir);
+        let binary_name = match os {
+            Os::Windows => "csharp-language-server.exe",
+            _ => "csharp-language-server",
+        };
+        let binary_path = format!("{}/{}", version_dir, binary_name);
 
         // Check if already downloaded
         if fs::metadata(&binary_path).is_ok() {
@@ -126,12 +130,13 @@ impl UnityExtension {
         }
 
         // Download and extract
-        zed::download_file(
-            &asset.download_url,
-            &version_dir,
-            DownloadedFileType::GzipTar,
-        )
-        .map_err(|e| format!("Failed to download csharp-language-server: {}", e))?;
+        let download_type = match os {
+            Os::Windows => DownloadedFileType::Zip,
+            _ => DownloadedFileType::GzipTar,
+        };
+
+        zed::download_file(&asset.download_url, &version_dir, download_type)
+            .map_err(|e| format!("Failed to download csharp-language-server: {}", e))?;
 
         // Make executable on Unix systems (permission is set by extraction)
         // The tar.gz should preserve file permissions
@@ -159,7 +164,7 @@ impl UnityExtension {
             .ok_or_else(|| format!("No asset found for platform: {}", asset_name))?;
 
         let version_dir = format!("netcoredbg-{}", release.version);
-        
+
         let (os, _) = zed::current_platform();
         let binary_name = match os {
             Os::Windows => "netcoredbg.exe",
@@ -223,7 +228,10 @@ impl UnityExtension {
     }
 
     /// Download and install USS language server from GitHub releases
-    fn install_uss_language_server(&self, language_server_id: &LanguageServerId) -> Result<String, String> {
+    fn install_uss_language_server(
+        &self,
+        language_server_id: &LanguageServerId,
+    ) -> Result<String, String> {
         let asset_name = self.get_uss_server_asset_name()?;
 
         zed::set_language_server_installation_status(
@@ -238,13 +246,19 @@ impl UnityExtension {
                 require_assets: true,
                 pre_release: false,
             },
-        ).map_err(|e| format!("Failed to fetch USS language server releases: {}", e))?;
+        )
+        .map_err(|e| format!("Failed to fetch USS language server releases: {}", e))?;
 
         let asset = release
             .assets
             .iter()
             .find(|a| a.name == asset_name)
-            .ok_or_else(|| format!("No USS language server asset found for platform: {}", asset_name))?;
+            .ok_or_else(|| {
+                format!(
+                    "No USS language server asset found for platform: {}",
+                    asset_name
+                )
+            })?;
 
         let (os, _) = zed::current_platform();
         let binary_name = match os {
@@ -293,7 +307,7 @@ impl UnityExtension {
         worktree: &Worktree,
     ) -> Result<Command> {
         let (os, _) = zed::current_platform();
-        
+
         let binary_name = match os {
             Os::Windows => "uss-language-server.exe",
             _ => "uss-language-server",
@@ -363,10 +377,11 @@ impl zed::Extension for UnityExtension {
             "csharp-language-server" => {
                 self.csharp_language_server_command(language_server_id, worktree)
             }
-            "uss-language-server" => {
-                self.uss_language_server_command(language_server_id, worktree)
-            }
-            _ => Err(format!("Unknown language server: {}", language_server_id.as_ref())),
+            "uss-language-server" => self.uss_language_server_command(language_server_id, worktree),
+            _ => Err(format!(
+                "Unknown language server: {}",
+                language_server_id.as_ref()
+            )),
         }
     }
 }
