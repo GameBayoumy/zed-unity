@@ -6,6 +6,7 @@ A comprehensive Unity development extension for Zed, providing:
 
 - **Roslyn-based C# Language Server** - Full C# IntelliSense powered by `csharp-language-server`
 - **USS (Unity Style Sheets) Language Server** - Complete language support for UI Toolkit styling
+- **Unity Package Integration** - Register Zed as Unity's external script editor with bidirectional file sync
 - **Unity Debugging** - Debug adapter integration via `netcoredbg` (coming soon)
 - **Syntax Highlighting** - Tree-sitter grammars for C# and USS
 
@@ -39,6 +40,15 @@ A comprehensive Unity development extension for Zed, providing:
 - **Variable inspection** and watch expressions
 - **Call stack** navigation
 
+### Unity Package Integration
+
+The companion Unity package ([zed-unity-package](https://github.com/GameBayoumy/zed-unity-package)) provides:
+
+- **External Script Editor** - Register Zed as Unity's external code editor
+- **Bidirectional File Sync** - Changes in Zed automatically refresh in Unity
+- **Project File Generation** - Automatic `.csproj` and `.sln` generation for Roslyn LSP
+- **Cross-Platform Support** - Works on Linux, macOS, and Windows
+
 ## Installation
 
 ### From Zed Extensions (Coming Soon)
@@ -71,6 +81,26 @@ The extension will automatically download the required language servers on first
 4. Restart Zed
 
 The extension will automatically download the USS language server from [GitHub releases](https://github.com/GameBayoumy/uss-language-server/releases).
+
+### Unity Package Installation
+
+Install the companion Unity package to enable Zed as an external script editor:
+
+#### Via Git URL (Recommended)
+
+1. Open Unity Editor
+2. Go to **Window > Package Manager**
+3. Click the **+** button > **Add package from git URL**
+4. Enter: `https://github.com/GameBayoumy/zed-unity-package.git`
+5. Click **Install**
+
+See the [zed-unity-package](https://github.com/GameBayoumy/zed-unity-package) repository for more details.
+
+#### Configure Zed as External Editor
+
+1. Go to **Edit > Preferences > External Tools**
+2. Set **External Script Editor** to **Zed**
+3. The package will auto-detect Zed's location, or you can set it manually
 
 ## Configuration
 
@@ -119,11 +149,35 @@ To find the Unity Editor's debug port:
 
 For the best experience:
 
-1. **Generate Project Files**: In Unity, go to Edit > Preferences > External Tools and click "Regenerate project files"
+1. **Install the Unity Package**: Follow the Unity Package Installation instructions above
 
-2. **Solution File**: Ensure your project has a `.sln` file at the root
+2. **Generate Project Files**: In Unity, go to **Tools > Zed > Regenerate Project Files** (or use Edit > Preferences > External Tools)
 
-3. **Analyzers**: Unity's Roslyn analyzers will automatically be picked up
+3. **Solution File**: The package automatically generates a `.sln` file at the project root
+
+4. **Analyzers**: Unity's Roslyn analyzers will automatically be included in project files
+
+### Unity Package Settings
+
+Configure the Zed integration in **Edit > Preferences > External Tools** when Zed is selected:
+
+| Setting | Description |
+|---------|-------------|
+| **Zed Path** | Path to Zed executable (auto-detected) |
+| **Open in New Window** | Always open files in a new Zed window |
+| **Enable File Sync** | Auto-refresh Unity when files change in Zed |
+| **Sync Interval** | How often to check for file changes (0.5-10s) |
+| **Generate .sln/.csproj** | Auto-generate project files for LSP |
+| **Use Roslyn Analyzers** | Include Unity analyzers in project files |
+
+### Menu Commands
+
+Access via **Tools > Zed**:
+
+- **Open Project in Zed** - Opens the entire Unity project in Zed
+- **Regenerate Project Files** - Manually regenerate `.sln` and `.csproj` files
+- **Force Sync** - Force a full file synchronization
+- **Open Preferences** - Quick access to External Tools settings
 
 ## USS (Unity Style Sheets)
 
@@ -224,6 +278,15 @@ sudo cp target/release/uss-language-server /usr/local/bin/
 2. Check the debug port in Unity's preferences
 3. Verify no firewall is blocking the connection
 
+### Unity Package Issues
+
+1. **Zed not detected**: Use "Auto-Detect" in preferences or manually browse to Zed executable
+2. **Project files not generating**: Check Unity console for errors, try "Regenerate Project Files"
+3. **File sync not working**: Ensure "Enable File Sync" is checked in preferences
+4. **LSP not working**: Make sure project files are generated and the Zed extension is installed
+
+See the [zed-unity-package](https://github.com/GameBayoumy/zed-unity-package) repository for more troubleshooting.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -234,6 +297,7 @@ MIT License - see [LICENSE.md](LICENSE.md) for details.
 
 ## Acknowledgments
 
+- [zed-unity-package](https://github.com/GameBayoumy/zed-unity-package) - Unity package for Zed integration
 - [uss-language-server](https://github.com/GameBayoumy/uss-language-server) - USS Language Server
 - [csharp-language-server](https://github.com/SofusA/csharp-language-server) by SofusA
 - [netcoredbg](https://github.com/Samsung/netcoredbg) by Samsung
